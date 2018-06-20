@@ -140,21 +140,18 @@ void loop() {
       CAN0.readMsgBuf(&rxId, &len, rxBuf);      // Read data: len = data length, buf = data byte(s) 
     }
     switch (rxId) {
-      case 0x137:
-        tr4 = ReadBytesFrom(2,0);
-        tr5 = ReadBytesFrom(2,2);
-        tr6 = ReadBytesFrom(2,4);
-        tr7 = ReadBytesFrom(2,6);
-        rxId = 0;
-        break;
       case 0x136:
         tr0 = ReadBytesFrom(2,0);
         tr1 = ReadBytesFrom(2,2);
         tr2 = ReadBytesFrom(2,4);
         tr3 = ReadBytesFrom(2,6);
-        rxId = 0;
+        rxId=0;
         break;
-      case 0x80:
+      case 0x137:
+        tr4 = ReadBytesFrom(2,0);
+        tr5 = ReadBytesFrom(2,2);
+        tr6 = ReadBytesFrom(2,4);
+        tr7 = ReadBytesFrom(2,6);
         dataFile = SD.open(fileName, FILE_WRITE);
         timestamp = millis();
         // if the file is available, write to it:
@@ -199,7 +196,7 @@ void loop() {
            Serial.println("error opening " + fileName);
         }
         dataFile.close();
-        rxId = 0;
+        rxId=0;
         break;
       default:
         break;
