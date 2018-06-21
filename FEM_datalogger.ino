@@ -44,11 +44,11 @@ byte val = 0;
 long previousMillis = 0;
 bool job_flag=0, flagSD=1, name_flag=1;
 String fileName;
-int tr7=0, tr6=0, tr5=0, tr4=0, tr3=0, tr2=0, tr1=0, tr0=0;
+int tr15=0, tr14=0, tr13=0, tr12=0, tr11=0, tr10=0, tr9=0, tr8=0, tr7=0, tr6=0, tr5=0, tr4=0, tr3=0, tr2=0, tr1=0, tr0=0;
 
 unsigned int ReadBytesFrom(byte len, byte beg) {
   int canMsg;
-  for ( int i = ( beg + len ); i > beg; i -- )
+  for ( int i = ( beg + len ); i > beg; i-- )
   {
     canMsg <<= 8;
     canMsg += rxBuf[ i - 1 ];
@@ -140,23 +140,57 @@ void loop() {
       CAN0.readMsgBuf(&rxId, &len, rxBuf);      // Read data: len = data length, buf = data byte(s) 
     }
     switch (rxId) {
-      case 0x136:
+      case 0x134:
         tr0 = ReadBytesFrom(2,0);
         tr1 = ReadBytesFrom(2,2);
         tr2 = ReadBytesFrom(2,4);
         tr3 = ReadBytesFrom(2,6);
+        Serial.println("134 ok");
         rxId=0;
-        break;
-      case 0x137:
+        break;      
+      case 0x135:
         tr4 = ReadBytesFrom(2,0);
         tr5 = ReadBytesFrom(2,2);
         tr6 = ReadBytesFrom(2,4);
         tr7 = ReadBytesFrom(2,6);
+        Serial.println("135 ok");
+        rxId=0;
+        break;
+      case 0x136:
+        tr8 = ReadBytesFrom(2,0);
+        tr9 = ReadBytesFrom(2,2);
+        tr10 = ReadBytesFrom(2,4);
+        tr11 = ReadBytesFrom(2,6);
+        Serial.println("136 ok");
+        rxId=0;
+        break;
+      case 0x137:
+        tr12 = ReadBytesFrom(2,0);
+        tr13 = ReadBytesFrom(2,2);
+        tr14 = ReadBytesFrom(2,4);
+        tr15 = ReadBytesFrom(2,6);
+        Serial.println("137 ok");
         dataFile = SD.open(fileName, FILE_WRITE);
         timestamp = millis();
         // if the file is available, write to it:
         if (dataFile&&GREEN_LED_PIN) {
           dataFile.print(timestamp);
+          dataFile.print(";");
+          dataFile.print(tr15);
+          dataFile.print(";");
+          dataFile.print(tr14);
+          dataFile.print(";");
+          dataFile.print(tr13);
+          dataFile.print(";");
+          dataFile.print(tr12);
+          dataFile.print(";");
+          dataFile.print(tr11);
+          dataFile.print(";");
+          dataFile.print(tr10);
+          dataFile.print(";");
+          dataFile.print(tr9);
+          dataFile.print(";");
+          dataFile.print(tr8);
           dataFile.print(";");
           dataFile.print(tr7);
           dataFile.print(";");
@@ -164,7 +198,7 @@ void loop() {
           dataFile.print(";");
           dataFile.print(tr5);
           dataFile.print(";");
-          dataFile.print(tr4); 
+          dataFile.print(tr4);
           dataFile.print(";");
           dataFile.print(tr3);
           dataFile.print(";");
@@ -174,6 +208,22 @@ void loop() {
           dataFile.print(";");
           dataFile.println(tr0);          
           Serial.print(timestamp);
+          Serial.print(";");
+          Serial.print(tr15);
+          Serial.print(";");
+          Serial.print(tr14);
+          Serial.print(";");
+          Serial.print(tr13);
+          Serial.print(";");
+          Serial.print(tr12);
+          Serial.print(";");
+          Serial.print(tr11);
+          Serial.print(";");
+          Serial.print(tr10);
+          Serial.print(";");
+          Serial.print(tr9);
+          Serial.print(";");
+          Serial.print(tr8);
           Serial.print(";");
           Serial.print(tr7);
           Serial.print(";");
