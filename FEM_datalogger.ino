@@ -20,6 +20,9 @@
 
 */
 
+//#define DEBUG
+
+
 #include <SD.h>
 #include <mcp_can.h>
 #include <SPI.h>
@@ -34,6 +37,7 @@ MCP_CAN CAN0(9);                               // Set CS to pin 9
 #define BUTTON_PIN      7
 #define ERROR_MASK      1
 
+File dataFile;
 //unsigned int lReady, rReady;
 //int batt_state;
 long unsigned int rxId;
@@ -57,6 +61,9 @@ unsigned int ReadBytesFrom(byte len, byte beg) {
 }
 
 void setup() {
+   File dataFile;
+
+     dataFile.print("all digits you see between ':' char are readen bytes");
   // Open serial communications and wait for port to open:
   Serial.begin(115200);
   while (!Serial) {
@@ -93,7 +100,6 @@ void setup() {
 }
 
 void loop() {  
-  File dataFile;
   if(digitalRead(BUTTON_PIN)==HIGH) {//если кнопка нажата ...
     if (millis()-previousMillis>50) {
        previousMillis = millis();    
@@ -112,30 +118,31 @@ void loop() {
     if (job_flag==0) {
       job_flag=1;
       name_flag=1;
+      unsigned int i = 1;
+      
+      while (name_flag) {
+        fileName = String("data") + i + String(".csv");
+        if (SD.exists(fileName)) {
+          i++;
+          continue;
+        }
+        else {
+          dataFile = SD.open(fileName, FILE_WRITE);
+          dataFile.println("timestamp;x_curr*100;send_motors;speedf;speedr;voltage_bms;current_bms;current_acc_cont;speedLF;speedRF;speedLR;speedRR;x;y;z;temp_left_motor;temp_right_motor");
+          Serial.println(fileName + " created!");
+          name_flag=0;
+        }
+      }
     }
     else {
       job_flag=0;
+      if (dataFile) { dataFile.close(); Serial.println("CLOSED");}
     }
     val=0;    
   }
  
-  String timestamp;
+  unsigned long timestamp;
   if (job_flag) {
-    unsigned int i = 1;
-    while (name_flag) {
-      fileName = String("data") + i + String(".csv");
-      if (SD.exists(fileName)) {
-        i++;
-        continue;
-      }
-      else {
-        dataFile = SD.open(fileName, FILE_WRITE);
-        dataFile.close();
-        Serial.println(fileName + " created!");
-        name_flag=0;
-      }
-    }
-    
     if (!digitalRead(CAN0_INT)) {                       // If CAN0_INT pin is low, read receive buffer
       CAN0.readMsgBuf(&rxId, &len, rxBuf);      // Read data: len = data length, buf = data byte(s) 
     }
@@ -145,7 +152,9 @@ void loop() {
         tr1 = ReadBytesFrom(2,2);
         tr2 = ReadBytesFrom(2,4);
         tr3 = ReadBytesFrom(2,6);
+#ifdef DEBUG
         Serial.println("134 ok");
+#endif
         rxId=0;
         break;      
       case 0x135:
@@ -153,7 +162,9 @@ void loop() {
         tr5 = ReadBytesFrom(2,2);
         tr6 = ReadBytesFrom(2,4);
         tr7 = ReadBytesFrom(2,6);
+#ifdef DEBUG
         Serial.println("135 ok");
+#endif
         rxId=0;
         break;
       case 0x136:
@@ -161,7 +172,9 @@ void loop() {
         tr9 = ReadBytesFrom(2,2);
         tr10 = ReadBytesFrom(2,4);
         tr11 = ReadBytesFrom(2,6);
+#ifdef DEBUG
         Serial.println("136 ok");
+#endif
         rxId=0;
         break;
       case 0x137:
@@ -169,8 +182,9 @@ void loop() {
         tr13 = ReadBytesFrom(2,2);
         tr14 = ReadBytesFrom(2,4);
         tr15 = ReadBytesFrom(2,6);
+#ifdef DEBUG
         Serial.println("137 ok");
-        dataFile = SD.open(fileName, FILE_WRITE);
+#endif
         timestamp = millis();
         // if the file is available, write to it:
         if (dataFile&&GREEN_LED_PIN) {
@@ -206,7 +220,8 @@ void loop() {
           dataFile.print(";");
           dataFile.print(tr1);
           dataFile.print(";");
-          dataFile.println(tr0);          
+          dataFile.println(tr0);
+#ifdef DEBUG
           Serial.print(timestamp);
           Serial.print(";");
           Serial.print(tr15);
@@ -240,17 +255,19 @@ void loop() {
           Serial.print(tr1);
           Serial.print(";");
           Serial.println(tr0);
+#else
+          Serial.println(timestamp);
+#endif
         }
         // if the file isn't open, pop up an error:
         else {
            Serial.println("error opening " + fileName);
         }
-        dataFile.close();
+        
         rxId=0;
         break;
       default:
         break;
     }
   }
-  if (dataFile) dataFile.close();
 }
