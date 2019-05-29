@@ -50,7 +50,7 @@ bool job_flag=0, flagSD=1, name_flag=1;
 String fileName;
 int tr15=0, tr14=0, tr13=0, tr12=0, tr11=0, tr10=0, tr9=0, tr8=0, tr7=0, tr6=0, tr5=0, tr4=0, tr3=0, tr2=0, tr1=0, tr0=0;
 
-unsigned int ReadBytesFrom(byte len, byte beg) {
+int ReadBytesFrom(byte len, byte beg) {
   int canMsg;
   for ( int i = ( beg + len ); i > beg; i-- )
   {
@@ -128,7 +128,7 @@ void loop() {
         }
         else {
           dataFile = SD.open(fileName, FILE_WRITE);
-          dataFile.println("timestamp;x_curr*100;send_motors;speedf;speedr;voltage_bms;current_bms;current_acc_cont;speedLF;speedRF;speedLR;speedRR;x;y;z;temp_left_motor;temp_right_motor");
+          dataFile.println("SteerOut;PedalOut;alfa;send_motors;speedf;speedr;slip*100;voltage_bms;current_acc_cont;current_left_motor;current_right_motor;x;y;z;temp_left_motor;temp_right_motor");
           Serial.println(fileName + " created!");
           name_flag=0;
         }
