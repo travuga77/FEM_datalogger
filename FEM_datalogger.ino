@@ -26,6 +26,7 @@
 #include <SD.h>
 #include <mcp_can.h>
 #include <SPI.h>
+#include <avr/wdt.h>
 
 
 #define CAN0_INT 2                              // Set INT to pin 2
@@ -61,6 +62,7 @@ int ReadBytesFrom(byte len, byte beg) {
 }
 
 void setup() {
+  wdt_enable(WDTO_2S);
    File dataFile;
 
      dataFile.print("all digits you see between ':' char are readen bytes");
@@ -81,7 +83,7 @@ void setup() {
   }
   Serial.println("card initialized.");
 
-  if (CAN0.begin(MCP_ANY, CAN_250KBPS, MCP_8MHZ) == CAN_OK)
+  if (CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_8MHZ) == CAN_OK)
     Serial.println("MCP2515 Initialized Successfully!");
   else
     Serial.println("Error Initializing MCP2515...");
@@ -100,6 +102,7 @@ void setup() {
 }
 
 void loop() {  
+  wdt_reset();
   if(digitalRead(BUTTON_PIN)==HIGH) {//если кнопка нажата ...
     if (millis()-previousMillis>50) {
        previousMillis = millis();    
@@ -128,7 +131,7 @@ void loop() {
         }
         else {
           dataFile = SD.open(fileName, FILE_WRITE);
-          dataFile.println("SteerOut;PedalOut;alfa;send_motors;speedf;speedr;slip*100;voltage_bms;current_acc_cont;current_left_motor;current_right_motor;x;y;z;temp_left_motor;temp_right_motor");
+          dataFile.println("Timestamp;SteerOut;PedalOut;alfa;send_motors;speed;speedf*100;speedr*100;speedRL;speedRR;slip*100;voltage_bms;current_acc_cont;current_left_motor;current_right_motor;racelogic_time;benchmark");
           Serial.println(fileName + " created!");
           name_flag=0;
         }
